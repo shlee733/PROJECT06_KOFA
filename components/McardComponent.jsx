@@ -17,7 +17,7 @@ export default function McardComponent() {
       <TouchableOpacity>
         <Box w={"100%"} h={200}>
           <ImageBlurLoading
-            source={movie1}
+            source={movie2}
             style={{
               flex: 1,
               width: "auto",
@@ -29,12 +29,12 @@ export default function McardComponent() {
         <VStack px={2} py={1}>
           <HStack justifyContent={"space-between"} pb="0.5">
             <Text fontSize={13} color="#C14045">
-              슈가랜드 특급
+              죠스
             </Text>
-            <Text fontSize={13}>12:00</Text>
+            <Text fontSize={13}>15:00</Text>
           </HStack>
           <Text fontSize={10} color="#777" pb="0.5">
-            스티븐 스필버그 | 1974년
+            스티븐 스필버그 | 1975년
           </Text>
           <Text fontSize={10} color="#777" pb="0.5" numberOfLines={1}>
             KOFA 더블피쳐: 스필버그 셀렉츠

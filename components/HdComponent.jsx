@@ -5,7 +5,7 @@ import logo from "../assets/logoImg.png";
 
 export default function HdComponent() {
   return (
-    <HStack w={"100%"} borderWidth={1} px={4} py={2} safeAreaTop>
+    <HStack w={"100%"} px={4} py={2} safeAreaTop>
       <Box w={130} h={50}>
         <Image
           source={logo}

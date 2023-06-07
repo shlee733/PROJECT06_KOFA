@@ -7,13 +7,17 @@ import ImageBlurLoading from "react-native-image-blur-loading";
 
 const deviceWidth = Dimensions.get("window").width;
 
-export default function PcardComponent() {
+export default function PcardComponent({ program }) {
+  console.log(program.image);
+  // const imgPath = program.image.toString();
+  // const imgPath2 = require("../assets/" + imgPath);
+
   return (
     <Box style={styles.Pcard}>
       <TouchableOpacity>
         <Box h={130}>
           <ImageBlurLoading
-            source={program1}
+            source={{ uri: program.image }}
             style={{
               flex: 1,
               width: "auto",
@@ -23,16 +27,16 @@ export default function PcardComponent() {
           />
         </Box>
         <VStack px={2} py={1}>
-          <HStack justifyContent={"space-between"} p="1">
+          <HStack justifyContent={"space-between"} p="1" pb={0.5}>
             <Text fontSize={12} color="#C14045">
               기획전
             </Text>
             <Text fontSize={12} color="#555">
-              2023.07.01.토 ~ 07.07.금
+              {program.date}
             </Text>
           </HStack>
           <Text fontSize={16} fontWeight={500} p="1" numberOfLines={1}>
-            KOFA 더블 피쳐: 스필버그 셀렉션
+            {program.title}
           </Text>
         </VStack>
       </TouchableOpacity>
@@ -48,7 +52,7 @@ const styles = StyleSheet.create({
     borderRadius: 32,
     overflow: "hidden",
     backgroundColor: "white",
-    shadowColor: "#000",
+    shadowColor: "#0D2C99",
     shadowOffset: {
       width: 0,
       height: 0,

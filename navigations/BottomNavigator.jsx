@@ -5,6 +5,8 @@ import SchedulePage from "../pages/SchedulePage";
 import ProgramPage from "../pages/ProgramPage";
 import MyPage from "../pages/MyPage";
 
+import { FontAwesome5, FontAwesome } from "@expo/vector-icons";
+
 const Tab = createBottomTabNavigator();
 
 const BottomNavigator = () => {
@@ -14,10 +16,43 @@ const BottomNavigator = () => {
         headerShown: false,
       }}
     >
-      <Tab.Screen name="Home" component={MainPage} />
-      <Tab.Screen name="상영일정" component={SchedulePage} />
-      <Tab.Screen name="프로그램" component={ProgramPage} />
-      <Tab.Screen name="마이페이지" component={MyPage} />
+      <Tab.Screen
+        name="Home"
+        component={MainPage}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <FontAwesome5 name="home" size={20} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="상영일정"
+        component={SchedulePage}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            // <FontAwesome5 name="calendar-alt" size={24} color={color} />
+            <FontAwesome name="calendar-o" size={20} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="프로그램"
+        component={ProgramPage}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <FontAwesome5 name="film" size={20} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="마이페이지"
+        component={MyPage}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <FontAwesome5 name="user-circle" size={20} color={color} />
+          ),
+        }}
+      />
     </Tab.Navigator>
   );
 };

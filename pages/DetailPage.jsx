@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { StyleSheet, TouchableOpacity } from "react-native";
 import {
   ScrollView,
@@ -8,32 +9,35 @@ import {
   VStack,
   Text,
   Button,
+  tou,
 } from "native-base";
 import ImageBlurLoading from "react-native-image-blur-loading";
+import he from "he";
+import * as Linking from "expo-linking";
+
+import { AntDesign } from "@expo/vector-icons";
 
 import detailImg from "../assets/detailImg.jpg";
 import poster from "../assets/movie2.jpg";
-import { useEffect } from "react";
 
 export default function DetailPage({ navigation, route }) {
   // console.log(route);
+  // console.log(route.params);
+  console.log(route.params.movie);
+  // const { movie } = route.params;
+  const mInfo = route.params.movie;
 
-  useEffect(() => {
-    navigation.setOptions({
-      headerStyele: {
-        // height: 100,
-        // backgroundColor: "#999",
-        // shadowColor: "#999",
-      },
-      // headerShown: true,
-    });
-  });
-  // navigation.setOptions({
-  //   headerStyele: {
-  //     height: 50,
-  //   },
-  //   headerShown: true,
-  // });
+  const [showFull, setShowFull] = useState(false);
+  const handleShowMore = () => {
+    setShowFull(true);
+  };
+
+  const goKmdb = () => {
+    const externalURL = `https://www.kmdb.or.kr/db/kor/detail/movie/${mInfo.cKmdbNation}/${mInfo.cKmdbDataid}`;
+    Linking.openURL(externalURL);
+  };
+
+  const decodedSynopsys = he.decode(mInfo.cSynopsys);
 
   return (
     <ScrollView
@@ -41,19 +45,15 @@ export default function DetailPage({ navigation, route }) {
       backgroundColor={"#EAF0FA"}
       // borderWidth={2}
     >
-      <Button
-        title="Go Back"
-        position={"absolute"}
-        w="10"
-        h="10"
-        top={0}
-        left={0}
-        zIndex={100}
+      <TouchableOpacity
+        style={styles.gobackBtn}
         onPress={() => navigation.goBack()}
-      />
+      >
+        <AntDesign name="arrowleft" size={24} color="white" />
+      </TouchableOpacity>
 
       <ImageBlurLoading
-        source={detailImg}
+        source={{ uri: mInfo.image1URL }}
         style={{
           width: "auto",
           height: 250,
@@ -62,8 +62,6 @@ export default function DetailPage({ navigation, route }) {
       />
       <View
         w={"100%"}
-        // borderWidth={1}
-        // borderColor="red.500"
         borderTopRadius={10}
         // position="absolute"
         top={-10}
@@ -72,7 +70,7 @@ export default function DetailPage({ navigation, route }) {
       >
         <HStack>
           <ImageBlurLoading
-            source={poster}
+            source={{ uri: mInfo.image2URL }}
             style={{
               width: 120,
               height: 160,
@@ -81,12 +79,24 @@ export default function DetailPage({ navigation, route }) {
               // left: 0,
             }}
           />
-          <VStack ml={6} pt={4}>
-            <Text fontSize={24} fontWeight={700}>
-              죠스
+          <VStack ml={6} pt={4} maxW={"60%"}>
+            <Text
+              fontSize={24}
+              fontWeight={700}
+              // numberOfLines={1}
+              flexWrap={"wrap"}
+              w={"100%"}
+            >
+              {mInfo.cMovieName}
             </Text>
-            <Text py={1}>2023.06.03 15:00</Text>
-            <Text>시네마테크KOFA 1관</Text>
+            <Text py={1}>
+              {`${mInfo.cMovieDate.slice(0, 4)}.${mInfo.cMovieDate.slice(
+                4,
+                6
+              )}.${mInfo.cMovieDate.slice(6)}`}{" "}
+              / {mInfo.cMovieTime}
+            </Text>
+            <Text>{mInfo.cCodeSubName3}</Text>
           </VStack>
         </HStack>
 
@@ -94,7 +104,9 @@ export default function DetailPage({ navigation, route }) {
           <Text
             fontSize={20}
             fontWeight={700}
+            color={"#0D2C99"}
             borderBottomWidth={1}
+            borderBottomColor={"#0D2C99"}
             mb={4}
             w={"24"}
             pb={1}
@@ -105,35 +117,33 @@ export default function DetailPage({ navigation, route }) {
             <Text fontWeight={700} w="20%">
               감독
             </Text>
-            <Text w="75%">스티븐 스필버그</Text>
+            <Text w="75%">{mInfo.cDirector}</Text>
           </HStack>
           <HStack justifyContent={"space-between"} mb={2}>
             <Text fontWeight={700} w="20%">
               출연
             </Text>
-            <Text w="75%">
-              로이 샤이더, 로버트 쇼, 리차드 드레이퓨스, 로랜 개리
-            </Text>
+            <Text w="75%">{mInfo.cActors}</Text>
           </HStack>
           <HStack justifyContent={"space-between"} mb={2}>
             <Text fontWeight={700} w="20%">
               제작년도
             </Text>
-            <Text w="75%">1975년</Text>
+            <Text w="75%">{mInfo.cProductionYear}년</Text>
           </HStack>
           <HStack justifyContent={"space-between"} mb={2}>
             <Text fontWeight={700} w="20%">
               러닝타임
             </Text>
-            <Text w="75%">124분</Text>
+            <Text w="75%">{mInfo.cRunningTime}분</Text>
           </HStack>
           <HStack justifyContent={"space-between"} mb={2}>
             <Text fontWeight={700} w="20%">
               관람등급
             </Text>
-            <Text w="75%">12세 이상 관람가</Text>
+            <Text w="75%">{mInfo.cCodeSubName2}</Text>
           </HStack>
-          <TouchableOpacity style={styles.moreBtn}>
+          <TouchableOpacity style={styles.moreBtn} onPress={goKmdb}>
             <Text color={"white"} textAlign="center" fontWeight={700}>
               KMDb에서 자세히 보기
             </Text>
@@ -144,33 +154,28 @@ export default function DetailPage({ navigation, route }) {
           <Text
             fontSize={20}
             fontWeight={700}
+            color={"#0D2C99"}
             borderBottomWidth={1}
+            borderBottomColor={"#0D2C99"}
             mb={4}
             w={"20"}
             pb={1}
           >
             # 줄거리
           </Text>
-          <Text numberOfLines={7} mb={2}>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Ducimus hic
-            distinctio animi molestiae quod exercitationem sapiente accusamus
-            repellendus reiciendis, voluptates et porro at consectetur
-            laudantium rerum molestias maxime odit alias! Lorem ipsum dolor sit
-            amet consectetur adipisicing elit. Ducimus hic distinctio animi
-            molestiae quod exercitationem sapiente accusamus repellendus
-            reiciendis, voluptates et porro at consectetur laudantium rerum
-            molestias maxime odit alias!
+          <Text numberOfLines={showFull ? undefined : 7} mb={2}>
+            {decodedSynopsys.replace(/<br\s*\/?>/g, "")}
           </Text>
 
-          <TouchableOpacity style={styles.moreBtn}>
-            <Text color={"white"} textAlign="center" fontWeight={700}>
-              더보기
-            </Text>
-          </TouchableOpacity>
+          {showFull ? null : (
+            <TouchableOpacity style={styles.moreBtn} onPress={handleShowMore}>
+              <Text color={"white"} textAlign="center" fontWeight={700}>
+                더보기
+              </Text>
+            </TouchableOpacity>
+          )}
         </Box>
       </View>
-
-      {/* <Button title="Go Back" onPress={() => navigation.goBack()} /> */}
     </ScrollView>
   );
 }
@@ -183,5 +188,15 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     marginTop: 16,
     padding: 8,
+  },
+  gobackBtn: {
+    position: "absolute",
+    width: 24,
+    height: 24,
+    top: 24,
+    left: 10,
+    zIndex: 100,
+    backgroundColor: "#99999950",
+    borderRadius: 12,
   },
 });

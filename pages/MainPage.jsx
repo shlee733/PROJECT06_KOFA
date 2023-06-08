@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { StyleSheet, TouchableOpacity, View, Dimensions } from "react-native";
+import { StyleSheet, TouchableOpacity, Dimensions } from "react-native";
 import {
   Button,
   HStack,
@@ -7,10 +7,9 @@ import {
   Text,
   Box,
   Image,
-  IconButton,
-  Icon,
   Input,
   FormControl,
+  View,
 } from "native-base";
 import { LinearGradient } from "expo-linear-gradient";
 import * as Linking from "expo-linking";
@@ -21,16 +20,23 @@ import McardComponent from "../components/McardComponent";
 import mainImg1 from "../assets/program1.jpg";
 import mainImg2 from "../assets/program2.jpg";
 import mainImg3 from "../assets/program3.jpg";
+import ftLogo from "../assets/logo_ft.png";
 
 import { AntDesign } from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
+import { useEffect } from "react";
 
-export default function MainPage() {
+export default function MainPage({ navigation }) {
+  const [movieList, setMovieList] = useState([]);
+
   const deviceWidth = Dimensions.get("window").width;
 
-  const [activeTab, setActiveTab] = useState("day1");
+  const [activeTab, setActiveTab] = useState(null);
   const handleTabPress = (tabName) => {
     setActiveTab(tabName);
+  };
+  const goSchedule = () => {
+    navigation.navigate("상영일정");
   };
 
   const insta = () => {
@@ -45,6 +51,45 @@ export default function MainPage() {
   const youtube = () => {
     Linking.openURL("https://www.youtube.com/koreanfilmarchive");
   };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(
+          "https://www.kmdb.or.kr/info/api/3/api.json?serviceKey=4H3RQ95F3KRTKO3K676U&StartDate=20230530&EndDate=20230604"
+        );
+        const data = await response.json();
+        // console.log(data.resultList);
+        const movies = data.resultList;
+        setMovieList(movies);
+
+        // api에서 가져온 첫번째 날짜로 초기 선택
+        if (movies.length > 0) {
+          setActiveTab(movies[0].cMovieDate);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const groupMoviesByDate = (movies) => {
+    const groupedMovies = {};
+    movies.forEach((movie) => {
+      const date = movie.cMovieDate;
+      if (!groupedMovies[date]) {
+        groupedMovies[date] = [];
+      }
+      groupedMovies[date].push(movie);
+    });
+    return groupedMovies;
+  };
+
+  const groupedMovies = groupMoviesByDate(movieList);
+  // console.log(groupedMovies);
+  // console.log(groupedMovies[20230530]);
+  // console.log(groupedMovies[20230530][0]);
 
   return (
     <ScrollView backgroundColor={"#EAF0FA"}>
@@ -80,117 +125,65 @@ export default function MainPage() {
         </Text>
         <Box>
           <View style={styles.tabMenu}>
-            <TouchableOpacity
-              style={[styles.tab, activeTab === "day1" && styles.activeTab]}
-              onPress={() => handleTabPress("day1")}
-            >
-              <Text
-                style={[
-                  styles.tabText,
-                  activeTab === "day1" && styles.activeTabText,
-                ]}
-              >
-                6/1 목
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.tab, activeTab === "day2" && styles.activeTab]}
-              onPress={() => handleTabPress("day2")}
-            >
-              <Text
-                style={[
-                  styles.tabText,
-                  activeTab === "day2" && styles.activeTabText,
-                ]}
-              >
-                6/2 금
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.tab, activeTab === "day3" && styles.activeTab]}
-              onPress={() => handleTabPress("day3")}
-            >
-              <Text
-                style={[
-                  styles.tabText,
-                  activeTab === "day3" && styles.activeTabText,
-                ]}
-              >
-                6/3 토
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.tab, activeTab === "day4" && styles.activeTab]}
-              onPress={() => handleTabPress("day4")}
-            >
-              <Text
-                style={[
-                  styles.tabText,
-                  activeTab === "day4" && styles.activeTabText,
-                ]}
-              >
-                6/4 일
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.tab, activeTab === "day5" && styles.activeTab]}
-              onPress={() => handleTabPress("day5")}
-            >
-              <Text
-                style={[
-                  styles.tabText,
-                  activeTab === "day5" && styles.activeTabText,
-                ]}
-              >
-                6/5 월
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.tab, activeTab === "day6" && styles.activeTab]}
-              onPress={() => handleTabPress("day6")}
-            >
-              <Text
-                style={[
-                  styles.tabText,
-                  activeTab === "day6" && styles.activeTabText,
-                ]}
-              >
-                6/6 화
-              </Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.tabContent}>
-            {activeTab === "day1" && (
-              <HStack
-                alignItems={"center"}
-                mx="6"
-                justifyContent={"space-between"}
-              >
-                <McardComponent />
-                <McardComponent />
-                <TouchableOpacity style={{ margin: 2 }}>
-                  <Box
-                    backgroundColor={"#F5822B"}
-                    w="35px"
-                    h="35px"
-                    borderRadius="full"
-                    alignItems={"center"}
-                    justifyContent={"center"}
+            {Object.keys(groupedMovies).map((date) => {
+              // const formattedDate = new Date(date).toLocaleDateString("ko-KR", {
+              //   month: "numeric",
+              //   day: "numeric",
+              //   weekday: "short",
+              // });
+              return (
+                <TouchableOpacity
+                  key={date}
+                  style={[styles.tab, activeTab === date && styles.activeTab]}
+                  onPress={() => handleTabPress(date)}
+                >
+                  <Text
+                    style={[
+                      styles.tabText,
+                      activeTab === date && styles.activeTabText,
+                    ]}
                   >
-                    <AntDesign name="arrowright" size={24} color="white" />
-                  </Box>
-                  <Text fontSize={12} alignSelf={"center"} color="#777" py={2}>
-                    더보기
+                    {date.slice(4, 6)}/{date.slice(6)}
+                    {/* {formattedDate} */}
                   </Text>
                 </TouchableOpacity>
-              </HStack>
-            )}
-            {activeTab === "day2" && <Text>day2 Content</Text>}
-            {activeTab === "day3" && <Text>day3 Content</Text>}
-            {activeTab === "day4" && <Text>day4 Content</Text>}
-            {activeTab === "day5" && <Text>day5 Content</Text>}
-            {activeTab === "day6" && <Text>day6 Content</Text>}
+              );
+            })}
           </View>
+          <HStack
+            // borderWidth={1}
+            justifyContent="space-between"
+            alignItems={"center"}
+          >
+            {activeTab && (
+              <View style={styles.tabContent}>
+                {groupedMovies[activeTab] &&
+                  groupedMovies[activeTab].map((movie, i) => {
+                    if (i < 2) {
+                      return (
+                        <McardComponent key={movie.cMovieName} movie={movie} />
+                      );
+                    }
+                    return null;
+                  })}
+              </View>
+            )}
+            <TouchableOpacity style={{ marginLeft: 2 }} onPress={goSchedule}>
+              <Box
+                backgroundColor={"#F5822B"}
+                w="35px"
+                h="35px"
+                borderRadius="full"
+                alignItems={"center"}
+                justifyContent={"center"}
+              >
+                <AntDesign name="arrowright" size={24} color="white" />
+              </Box>
+              <Text fontSize={12} alignSelf={"center"} color="#777" py={2}>
+                더보기
+              </Text>
+            </TouchableOpacity>
+          </HStack>
         </Box>
       </Box>
 
@@ -275,15 +268,32 @@ export default function MainPage() {
           </TouchableOpacity>
         </HStack>
       </Box>
+
+      <View alignItems={"center"} p={4} mt={6}>
+        <Image source={ftLogo} alt={"logo"} w={"120"} resizeMode="contain" />
+        <Text fontSize={12} color={"#aaaaaa"}>
+          서울시 마포구 월드컵북로 400 한국영상자료원 (우 03925)
+        </Text>
+        <Text fontSize={12} color={"#aaaaaa"}>
+          전화: 02)3153-2001 팩스: 02)3153-2080
+        </Text>
+        <Text fontSize={12} color={"#aaaaaa"}>
+          made by shlee
+        </Text>
+      </View>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   tabContent: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    // flex: 1,
+    // alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    // borderWidth: 1,
+    maxWidth: "90%",
+    // overflow: "hidden",
   },
   tabMenu: {
     flexDirection: "row",
